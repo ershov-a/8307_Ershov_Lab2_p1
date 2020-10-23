@@ -1,0 +1,8 @@
+#ifndef INC_8307_ERSHOV_LAB2_P1_VIRTUALMEMORY_H
+#define INC_8307_ERSHOV_LAB2_P1_VIRTUALMEMORY_H
+
+#include <sysinfoapi.h>
+
+void getSystemInfo();
+
+#endif //INC_8307_ERSHOV_LAB2_P1_VIRTUALMEMORY_H
