@@ -7,6 +7,8 @@
 #include <iostream>
 #include <map>
 #include <bitset>
+#include <Errhandlingapi.h>
+#include <Windows.h>
 
 void getSystemInfo();
 

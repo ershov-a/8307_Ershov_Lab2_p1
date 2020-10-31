@@ -186,41 +186,62 @@ void reserveCommitMemory(){
     getVirtualMemoryStatusByAddress((DWORD64)allocatedMemoryPtr);
 }
 
-void writeToAddress(){
+/*
+ * Returns the last Win32 error, in string format. Returns an empty string if there is no error.
+ * Source: https://stackoverflow.com/questions/1387064/how-to-get-the-error-message-from-the-error-code-returned-by-getlasterror
+ * */
+std::string GetLastErrorAsString()
+{
+    //Get the error message, if any.
+    DWORD errorMessageID = ::GetLastError();
+    if(errorMessageID == 0)
+        return std::string(); //No error message has been recorded
+
+    LPSTR messageBuffer = nullptr;
+    size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                                 NULL, errorMessageID, MAKELANGID(LANG_ENGLISH, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
+
+    std::string message(messageBuffer, size);
+
+    //Free the buffer.
+    LocalFree(messageBuffer);
+
+    return message;
+}
+
+void writeToAddress() {
+
     LPVOID startAddress;
-    LPVOID memoryPointer;
     std::cout << "Enter start address (enter 0 for automatic): 0x";
     std::cin >> std::hex >> startAddress;
 
-    MEMORY_BASIC_INFORMATION memoryInformation;
+    void *allocAddr = VirtualAlloc(startAddress, sizeof(int), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
-    // Check if memory is protected
-    VirtualQuery((LPCVOID)startAddress, &memoryInformation, sizeof(memoryInformation));
-    if (startAddress != nullptr && memoryInformation.Protect & PAGE_NOACCESS) {
-        std::cout << "*** Memory is protected ***" << std::endl;
+    /*
+     * Check for success of memory reserve&commit
+     * If error, print error no and human readable error
+     * */
+    if (!allocAddr) {
+        std::cout << "Error while allocating: " << GetLastError() << std::endl;
+        std::cout << GetLastErrorAsString();
         return;
     }
 
-    int dataToWrite = 0;
-    std::cout << "Input data to write: ";
-    std::cin >> std::dec >> dataToWrite;
+    // Print information about allocated memory and address
+    MEMORY_BASIC_INFORMATION memInfo;
+    VirtualQuery(allocAddr, &memInfo, sizeof(memInfo));
+    std::cout << "Allocated " << memInfo.RegionSize << "B at " << std::hex << allocAddr << std::dec << std::endl;
 
-    // Write data to address
-    if (startAddress) {
-        memcpy(startAddress, &dataToWrite, sizeof(int));
-        std::cout << "Data  at address " << std::hex << startAddress << std::dec << " was set to " << (*(PDWORD)startAddress) << std::endl;
-    } else {
-        memoryPointer = VirtualAlloc(startAddress, sizeof(int), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-        memcpy(memoryPointer, &dataToWrite, sizeof(int));
-        std::cout << "Data  at address " << std::hex << memoryPointer << std::dec << " was set to " << (*(PDWORD)memoryPointer) << std::endl;
-        VirtualFree(memoryPointer, 0, MEM_RELEASE);
-    }
+    // Get and record data to memory
+    std::cout << "Enter data: ";
+    std::cin >> reinterpret_cast<char *>(allocAddr);
+    std::cout << "Recorded data: " << reinterpret_cast<char *>(allocAddr) << std::endl;
 }
 
 void protectMemoryByAddress(){
     LPVOID startAddress;
     LPVOID memoryPointer;
-    std::cout << "Enter start address (enter 0 for automatic): 0x";
+    std::cout << "Enter start address: 0x";
     std::cin >> std::hex >> startAddress;
 
     DWORD flOldProtect;
