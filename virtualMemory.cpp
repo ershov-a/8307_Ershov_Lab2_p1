@@ -102,7 +102,6 @@ void getVirtualMemoryStatusByAddress(DWORD64 memoryAddress){
         std::cout << systemInfo.lpMinimumApplicationAddress << " to " << systemInfo.lpMaximumApplicationAddress;
         std::cout << "\n> 0x";
 
-
         std::cin >> std::hex >> memoryAddress;
     }
 
@@ -135,14 +134,13 @@ void getVirtualMemoryStatusByAddress(DWORD64 memoryAddress){
     std::cout << std::dec;
 }
 
-void manualReverseCommit(){
+void reserveMemory(){
     LPVOID startAddress;
     std::cout << "Enter start address (enter 0 for automatic): 0x";
     std::cin >> std::hex >> startAddress;
     SIZE_T dwSize;
     std::cout << "Enter size in bytes: ";
     std::cin >> std::dec >> dwSize;
-
 
     // Try to reserve memory
     LPVOID allocatedMemoryPtr = VirtualAlloc(startAddress, dwSize, MEM_RESERVE, PAGE_READWRITE);
@@ -156,32 +154,13 @@ void manualReverseCommit(){
         return;
     }
 
-    // Try to commit memory
-    allocatedMemoryPtr = VirtualAlloc(startAddress, dwSize, MEM_COMMIT, PAGE_READWRITE);
-
-    // If commit was successful, output information
-    if (allocatedMemoryPtr != nullptr) {
-        std::cout << "\n*** Memory committed successfully ***" << std::endl;
-        getVirtualMemoryStatusByAddress((DWORD64)allocatedMemoryPtr);
-    } else {
-        std::cout << "\n*** Can not commit memory ***" << std::endl;
-        return;
-    }
-
-
-    // Decommit memory (memory still reserved)
-    VirtualFree(allocatedMemoryPtr, dwSize, MEM_DECOMMIT);
-    std::cout << "\n*** Memory decomitted ***" << std::endl;
-    getVirtualMemoryStatusByAddress((DWORD64)allocatedMemoryPtr);
-
     // Release memory
     VirtualFree(allocatedMemoryPtr, 0, MEM_RELEASE);
     std::cout << "\n*** Memory released ***" << std::endl;
     getVirtualMemoryStatusByAddress((DWORD64)allocatedMemoryPtr);
-
 }
 
-void autoReverseCommit(){
+void reserveCommitMemory(){
     LPVOID startAddress;
     std::cout << "Enter start address (enter 0 for automatic): 0x";
     std::cin >> std::hex >> startAddress;
@@ -236,7 +215,6 @@ void writeToAddress(){
         std::cout << "Data  at address " << std::hex << memoryPointer << std::dec << " was set to " << (*(PDWORD)memoryPointer) << std::endl;
         VirtualFree(memoryPointer, 0, MEM_RELEASE);
     }
-
 }
 
 void protectMemoryByAddress(){

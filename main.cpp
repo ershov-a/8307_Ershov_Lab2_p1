@@ -11,8 +11,8 @@ void (*functionsList[])() = {
     getSystemInfo,
     getVirtualMemoryStatus,
     getVirtualMemoryStatusByAddressStarter,
-    manualReverseCommit,
-    autoReverseCommit,
+    reserveMemory,
+    reserveCommitMemory,
     writeToAddress,
     protectMemoryByAddress
 };
@@ -43,8 +43,8 @@ void menuPrint(){
     std::cout << "1. Retrieve system information (GetSystemInfo)\n";
     std::cout << "2. Retrieve memory information (GlobalMemoryStatusEx)\n";
     std::cout << "3. Retrieve virtual memory status by address (VirtualQuery)\n";
-    std::cout << "4. Allocate memory (separate merge&commit)\n";
-    std::cout << "5. Allocate memory (simultaneous merge&commit)\n";
+    std::cout << "4. Reserve memory (by address, automatic), show info, decommit after\n";
+    std::cout << "5. Reserve and commit memory (by address, automatic), show info, decommit and release after\n";
     std::cout << "6. Write data to memory\n";
     std::cout << "7. Protect memory by address\n";
     std::cout << "0. Exit";

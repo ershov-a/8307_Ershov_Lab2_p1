@@ -16,9 +16,9 @@ void getVirtualMemoryStatusByAddressStarter();
 
 void getVirtualMemoryStatusByAddress(DWORD64 memoryAddress);
 
-void manualReverseCommit();
+void reserveMemory();
 
-void autoReverseCommit();
+void reserveCommitMemory();
 
 void writeToAddress();
 
